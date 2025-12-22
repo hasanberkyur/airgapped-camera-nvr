@@ -7,7 +7,7 @@ The goal was to build a camera setup that can be accessed locally and remotely w
 
 The project evolved iteratively as real-world constraints (hardware limitations, network topology, WAN restrictions) were discovered and addressed.
 
-_(PHOTO OF THE SETUP)_
+_(PHOTO OF THE iLAB like SETUP)_
 
 ## Motivation
 
@@ -25,6 +25,7 @@ When my family considered purchasing a baby monitor, I wanted to understand whet
 | USB WiFi Adapter | TP-Link TL-WN722N            | Isolated camera WLAN                   |
 | Client Device    | Laptop / Phone               | Local & remote monitoring              |
 
+_(PHOTO OF THE HARDWARE)_
 
 ## Initial Setup
 
@@ -48,17 +49,35 @@ This confirmed that the camera could be accessed and used locally without any ma
 
 In this project I used Frigate, which is an open-source, real-time Network Video Recorder (NVR) designed for IP cameras that processes RTSP video streams locally and supports object detection using hardware-accelerated or CPU-based inference. It enables users to record, restream, and analyze camera feeds without relying on cloud services, making it well-suited for privacy-focused and air-gapped camera deployments.
 
-I deployed Frigate inside a Docker container using the provided [docker-compose.yml](configs/frigate/docker-compose.yml)
+I deployed Frigate inside a Docker container using the provided [docker-compose.yml](configs/docker/docker-compose.yml)
 
 After starting the container, I configured Frigate using [config/config.yaml](configs/frigate/config.yaml), referencing the official [full configuration reference](https://docs.frigate.video/configuration/reference). In addition, I followed Frigate’s [camera-spesific configuration guide](https://docs.frigate.video/configuration/camera_specific/#reolink-cameras), which proved especially helpful for achieving stable RTSP streaming and optimal compatibility. 
 
-I used some AI detection, like starting recording when camera detects a book or hears a baby crying. One problem was that AI dedtection was using a lot of CPU power and I was running Frigate on a Raspberry Pi. After looking at its website, I found out that I could use [Raspberry Pi AI HAT+](https://www.raspberrypi.com/products/ai-hat/), which has a built-in neural network accelerator, to fully use the AI detection features of Frigate like Object detection, Audio detection, Semantic Search, Generative AI, Face Recognation, License Plate Recording and so on.   
+I experimented with several AI-based detection features, such as automatically starting a recording when the camera detected a book or when audio events (e.g., a baby crying) were recognized. While these features worked as expected, I observed that AI detection placed a significant load on the system, as Frigate was running on a Raspberry Pi with limited CPU resources.
 
-_(PHOTO OF THE CPU-USAGE)_
+After reviewing Frigate’s documentation, I learned that hardware acceleration could be added using the [**Raspberry Pi AI HAT+**](https://www.raspberrypi.com/products/ai-hat/), which includes a dedicated neural network accelerator. This hardware enables full use of Frigate’s advanced features, including object detection, audio detection, semantic search, generative AI capabilities, face recognition, and license plate recognition.
+
 ![Frigate detecting book and starts recording](docs/images/frigate-book-detection.gif)
 
+![Frigate detecting book](docs/images/frigate-detect-cpu.png)
 
-AI detection denemeleri yaptim fakat islem gücü yetersiz kaldi 
+However, since the primary goal of this project was to design and verify a secure, air-gapped camera architecture rather than to build an AI-focused NVR, I decided to disable AI-based detection and continue with a lightweight, resource-efficient configuration.
+
+_(PHOTO OF THE WEB INTERFACE)_
+
+## Problems with the Home Network
+
+During testing, I noticed a significant degradation in my home wireless network performance. General internet usage became unreliable, and in some cases I was unable to browse the web over WLAN from my laptop. Although I did not initially identify a single root cause, it became clear that continuous camera streaming was congesting the shared wireless network.
+
+To address this, I decided to fully isolate the camera’s network traffic. I connected an external USB Wi-Fi adapter (TP-Link TL-WN722N) to the Raspberry Pi and configured it as a dedicated access point using [hostapd]() and [dnsmasq]().
+
+- **wlan1**: configured as an access point
+- **wlan0**: remained connected to the home network
+
+The camera was moved onto this isolated WLAN, named CAMERA_LAN. This separation ensured predictable bandwidth for the camera stream and eliminated interference with unrelated network traffic on the home network.
+
+
+
 yurt wifi inin yavasladigini fark ettim, bu yüzden pi3 e AP kurulumu yaptim 
 birkaç optimizasyon ile LANda en kaliteli sekilde frigate kullanabiliyordum 
 uzaktan güvenli erisim icin pi3 e wireguard kurdum, WAN ddad oldugum icin ulasamadigimi fark ettim 
