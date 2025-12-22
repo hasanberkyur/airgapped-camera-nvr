@@ -49,9 +49,9 @@ This confirmed that the camera could be accessed and used locally without any ma
 
 In this project I used Frigate, which is an open-source, real-time Network Video Recorder (NVR) designed for IP cameras that processes RTSP video streams locally and supports object detection using hardware-accelerated or CPU-based inference. It enables users to record, restream, and analyze camera feeds without relying on cloud services, making it well-suited for privacy-focused and air-gapped camera deployments.
 
-I deployed Frigate inside a Docker container using the provided [docker-compose.yml](configs/docker/docker-compose.yml)
+I deployed Frigate inside a Docker container using the provided [*docker-compose.yml*](configs/docker/docker-compose.yml)
 
-After starting the container, I configured Frigate using [config/config.yaml](configs/frigate/config.yaml), referencing the official [full configuration reference](https://docs.frigate.video/configuration/reference). In addition, I followed Frigate’s [camera-spesific configuration guide](https://docs.frigate.video/configuration/camera_specific/#reolink-cameras), which proved especially helpful for achieving stable RTSP streaming and optimal compatibility. 
+After starting the container, which runs the [**Web-Interface**](docs/images/frigate-web-ui.png) on port 5000, I configured Frigate using [*config/config.yaml*](configs/frigate/config.yaml), referencing the official [**full configuration reference**](https://docs.frigate.video/configuration/reference). In addition, I followed Frigate’s [**camera-spesific configuration guide**](https://docs.frigate.video/configuration/camera_specific/#reolink-cameras), which proved especially helpful for achieving stable RTSP streaming and optimal compatibility. 
 
 I experimented with several AI-based detection features, such as automatically starting a recording when the camera detected a book or when audio events (e.g., a baby crying) were recognized. While these features worked as expected, I observed that AI detection placed a significant load on the system, as Frigate was running on a Raspberry Pi with limited CPU resources.
 
@@ -69,7 +69,7 @@ _(PHOTO OF THE WEB INTERFACE)_
 
 During testing, I noticed a significant degradation in my home wireless network performance. General internet usage became unreliable, and in some cases I was unable to browse the web over WLAN from my laptop. Although I did not initially identify a single root cause, it became clear that continuous camera streaming was congesting the shared wireless network.
 
-To address this, I decided to fully isolate the camera’s network traffic. I connected an external USB Wi-Fi adapter (TP-Link TL-WN722N) to the Raspberry Pi and configured it as a dedicated access point using [hostapd]() and [dnsmasq]().
+To address this, I decided to fully isolate the camera’s network traffic. I connected an external USB Wi-Fi adapter (TP-Link TL-WN722N) to the Raspberry Pi and configured it as a dedicated access point using [**hostapd**](configs/hostapd/) and [**dnsmasq**](configs/dnsmasq/).
 
 - **wlan1**: configured as an access point
 - **wlan0**: remained connected to the home network
