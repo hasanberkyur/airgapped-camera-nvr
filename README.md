@@ -126,11 +126,11 @@ hasan@pi3:~/frigate $ tailscale status
  
 In this section, I document how network isolation and secure access were enforced and verified, starting from the camera network (CAMERA_LAN) and extending outward to remote VPN access.
 
-1. CAMERA_LAN Isolation (192.168.30.0/24)
+### 1. CAMERA_LAN Isolation (192.168.30.0/24)
 
-### asd
+#### asd
 
-## 2. asdd
+### 2. asdd
 
 
 
