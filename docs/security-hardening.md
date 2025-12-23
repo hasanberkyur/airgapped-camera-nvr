@@ -4,6 +4,8 @@ This document describes the security design decisions used to isolate an IP came
 
 The focus of this document is **hardening by architecture** rather than operational verification. Packet-level verification and testing were performed during development but are intentionally not fully included here.
 
+---
+
 ## Scope and Security Objectives
 
 - The IP camera must have **no routable path to the internet**
@@ -21,7 +23,7 @@ The focus of this document is **hardening by architecture** rather than operatio
 - **NVR:** Frigate running in Docker on Raspberry Pi
 - **Remote access:** Tailscale (WireGuard-based) using SSO login
 
-![Project setup](docs/images/network-diagram.png)
+![Project setup](images/network-diagram.png)
 
 ---
 
@@ -40,7 +42,7 @@ Consumer IP cameras commonly attempt:
 
 This establishes a single, auditable control point.
 
-## 2. Explicit RTSP-Only Access to the Server
+## 2. Explicit RTSP-Only Access
 
 ### Security Goal
 The camera may communicate **only** for video streaming purposes and only with the local NVR.
@@ -80,6 +82,8 @@ num   pkts bytes target     prot opt in     out     source               destina
 3        0     0 DROP       all  --  wlan1  *       192.168.30.0/24      0.0.0.0/0
 ```
 
+Initially, the camera received a default gateway and DNS service via the Raspberry Pi, allowing it to resolve cloud and peer-to-peer endpoints and attempt outbound communication. After enforcing strict INPUT chain filtering that permits only RTSP traffic, DNS requests from the camera are no longer accepted. Without DNS resolution, the camera cannot bootstrap cloud or P2P services and therefore does not generate any internet-bound traffic. As a result, only local multicast discovery and explicitly permitted RTSP traffic remain observable.
+
 This ensures that even if the camera firmware attempts non-video communication, those attempts cannot succeed.
 
 ## 3. Forwarding Boundary on the Raspberry Pi
@@ -96,17 +100,20 @@ An explicit iptables rule drops all forwarded packets originating from `wlan1` (
 
 ```bash
 # Drop all forwarded packets from CAMERA_LAN to HOME_LAN
-sudo iptables -I FORWARD 1 -i wlan1 -o wlan0 -j DROP
+sudo iptables -A FORWARD -i wlan1 -o wlan0 -j DROP
+
+# Drop all forwarded packets from HOME_LAN to CAMERA_LAN
+sudo iptables -A FORWARD -i wlan0 -o wlan1 -j DROP
 ```
+
 ```bash
 hasan@pi3:~ $ sudo iptables -L FORWARD -v -n --line-numbers
-Chain FORWARD (policy ACCEPT 26 packets, 2424 bytes)
+Chain FORWARD (policy ACCEPT 12 packets, 1152 bytes)
 num   pkts bytes target     prot opt in     out     source               destination
-1    41727   28M DOCKER-USER  all  --  *      *       0.0.0.0/0            0.0.0.0/0
-2    41727   28M DOCKER-FORWARD  all  --  *      *       0.0.0.0/0            0.0.0.0/0
-3       27  3132 DROP       all  --  wlan1  wlan0   0.0.0.0/0            0.0.0.0/0
+1        6   576 DROP       all  --  wlan1  wlan0   0.0.0.0/0            0.0.0.0/0
+2        0     0 DROP       all  --  wlan0  wlan1   0.0.0.0/0            0.0.0.0/0
 ```
-**Note**: It is important to note that the first two Docker-related rules do not shadow the third rule added above.
+**Note**: It is important to note that the Docker-related rules do not shadow the rules added above.
 
 ## 5. Secure Remote Access via VPN
 
