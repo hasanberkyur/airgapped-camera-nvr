@@ -9,6 +9,19 @@ The project evolved iteratively as real-world constraints (hardware limitations,
 
 _(PHOTO OF THE iLAB like SETUP)_
 
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Motivation](#motivation)
+3. [Hardware Used)](#hardware-used)
+4. [Initial Setup](#initial-setup)
+5. [NVR Deployment & Video Processing using **Frigate**](#nvr-deployment--video-processing-using-frigate)
+6. [Frigate's AI Features](#frigates-ai-features)
+7. [Problems with the Home Network](#problems-with-the-home-network)
+8. [-]()
+9. [-]()
+10. [-]()
+
 ## Motivation
 
 The project began with a practical question: How secure are consumer baby monitors and IP cameras in real-world deployments?
@@ -53,6 +66,10 @@ I deployed Frigate inside a Docker container using the provided [*docker-compose
 
 After starting the container, which runs the [**Web-Interface**](docs/images/frigate-web-ui.png) on port 5000, I configured Frigate using [*config/config.yaml*](configs/frigate/config.yaml), referencing the official [**full configuration reference**](https://docs.frigate.video/configuration/reference). In addition, I followed Frigate’s [**camera-spesific configuration guide**](https://docs.frigate.video/configuration/camera_specific/#reolink-cameras), which proved especially helpful for achieving stable RTSP streaming and optimal compatibility. 
 
+_(PHOTO OF THE WEB INTERFACE)_
+
+## Frigate's AI Features
+
 I experimented with several AI-based detection features, such as automatically starting a recording when the camera detected a book or when audio events (e.g., a baby crying) were recognized. While these features worked as expected, I observed that AI detection placed a significant load on the system, as Frigate was running on a Raspberry Pi with limited CPU resources.
 
 After reviewing Frigate’s documentation, I learned that hardware acceleration could be added using the [**Raspberry Pi AI HAT+**](https://www.raspberrypi.com/products/ai-hat/), which includes a dedicated neural network accelerator. This hardware enables full use of Frigate’s advanced features, including object detection, audio detection, semantic search, generative AI capabilities, face recognition, and license plate recognition.
@@ -62,8 +79,6 @@ After reviewing Frigate’s documentation, I learned that hardware acceleration 
 ![Frigate detecting book](docs/images/frigate-detect-cpu.png)
 
 However, since the primary goal of this project was to design and verify a secure, air-gapped camera architecture rather than to build an AI-focused NVR, I decided to disable AI-based detection and continue with a lightweight, resource-efficient configuration.
-
-_(PHOTO OF THE WEB INTERFACE)_
 
 ## Problems with the Home Network
 
@@ -76,13 +91,33 @@ To address this, I decided to fully isolate the camera’s network traffic. I co
 
 The camera was moved onto this isolated WLAN, named CAMERA_LAN. This separation ensured predictable bandwidth for the camera stream and eliminated interference with unrelated network traffic on the home network.
 
+## Firewall on the Raspberry Pi
 
+Once the camera was no longer sending traffic through the home router, I disabled the previously configured internet access control rules on the router. To continue preventing any internet access from the camera, I enforced traffic restrictions directly on the Raspberry Pi using firewall rules implemented with [**iptables**](configs/iptables/).
 
-yurt wifi inin yavasladigini fark ettim, bu yüzden pi3 e AP kurulumu yaptim 
-birkaç optimizasyon ile LANda en kaliteli sekilde frigate kullanabiliyordum 
-uzaktan güvenli erisim icin pi3 e wireguard kurdum, WAN ddad oldugum icin ulasamadigimi fark ettim 
+```bash
+# Drop all forwarded packets from CAMERA_LAN to the home network
+sudo iptables -I FORWARD 1 -i wlan1 -o wlan0 -j DROP
+```
+As later demonstrated in the [**Security Hardening & Verification**](#security-hardening--verification) section, the camera periodically attempts to send outbound traffic for various purposes. These packets are consistently dropped by the firewall before they can be forwarded beyond the Raspberry Pi, effectively enforcing the air-gapped design.
+
+## Secure Remote Access through VPN
+
+To enable secure remote access to the NVR, I initially installed [**pivpn**](https://www.pivpn.io/), a lightweight management tool that simplifies the deployment and configuration of VPN servers on Raspberry Pi devices. I selected WireGuard as the VPN protocol, configured the wlan0 interface as the VPN endpoint, and assigned a client IP range for VPN peers.
+
+In addition, I configured a static IP address for the Raspberry Pi and set up port forwarding on the router to forward traffic destined for UDP port 51820 (the WireGuard default port) to the Pi.
+
+![Port forwarding](docs/images/port-forwarding.png)
+
+Despite the correct local configuration, I was unable to establish a VPN connection from my phone. After troubleshooting and revisiting concepts from my networking lectures, I realized that the network environment was operating behind carrier-grade NAT (WAN-side NAT). In this setup, inbound VPN traffic never reached my home router, as the upstream network could not route the packets to it.
+
+To overcome this limitation, I switched to [**Tailscale**](https://tailscale.com/). Tailscale avoids this issue by establishing outbound, encrypted peer-to-peer connections, allowing the upstream NAT to maintain state for return traffic; periodic keepalives ensure this state remains active. Because all connections are initiated from inside the network, no inbound port forwarding is required, making Tailscale well-suited for environments without direct WAN access. 
+
+## Security Hardening & Verification
+ 
+WAN ddad oldugum icin ulasamadigimi fark ettim 
 Tailscale kullanmaya karar verdim 
-en son güvenlik denemeleri yaptim, iptables kullandim, tcpdumtan trafigi analiz ettim
+en son güvenlik denemeleri yaptim, tcpdumtan trafigi analiz ettim
 
 
 air-gapped-home-camera/
