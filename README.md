@@ -13,7 +13,7 @@ _(PHOTO OF THE iLAB like SETUP)_
 
 1. [Overview](#overview)
 2. [Motivation](#motivation)
-3. [Hardware Used)](#hardware-used)
+3. [Hardware Used](#hardware-used)
 4. [Initial Setup](#initial-setup)
 5. [NVR Deployment & Video Processing using **Frigate**](#nvr-deployment--video-processing-using-frigate)
 6. [Frigate's AI Features](#frigates-ai-features)
@@ -103,6 +103,7 @@ As later demonstrated in the [**Security Hardening & Verification**](#security-h
 
 ## Secure Remote Access through VPN
 
+### WireGuard
 To enable secure remote access to the NVR, I initially installed [**pivpn**](https://www.pivpn.io/), a lightweight management tool that simplifies the deployment and configuration of VPN servers on Raspberry Pi devices. I selected WireGuard as the VPN protocol, configured the wlan0 interface as the VPN endpoint, and assigned a client IP range for VPN peers.
 
 In addition, I configured a static IP address for the Raspberry Pi and set up port forwarding on the router to forward traffic destined for UDP port 51820 (the WireGuard default port) to the Pi.
@@ -110,6 +111,8 @@ In addition, I configured a static IP address for the Raspberry Pi and set up po
 ![Port forwarding](docs/images/port-forwarding.png)
 
 Despite the correct local configuration, I was unable to establish a VPN connection from my phone. After troubleshooting and revisiting concepts from my networking lectures, I realized that the network environment was operating behind carrier-grade NAT (WAN-side NAT). In this setup, inbound VPN traffic never reached my home router, as the upstream network could not route the packets to it.
+
+### Tailscale
 
 To overcome this limitation, I switched to [**Tailscale**](https://tailscale.com/). Tailscale avoids this issue by establishing outbound, encrypted peer-to-peer connections, allowing the upstream NAT to maintain state for return traffic; periodic keepalives ensure this state remains active. Because all connections are initiated from inside the network, no inbound port forwarding is required, making Tailscale well-suited for environments without direct WAN access. 
 
