@@ -38,8 +38,6 @@ When my family considered purchasing a baby monitor, I wanted to understand whet
 | USB WiFi Adapter | TP-Link TL-WN722N            | Isolated camera WLAN                   |
 | Client Device    | Laptop / Phone               | Local & remote monitoring              |
 
-_(PHOTO OF THE HARDWARE)_
-
 ## Initial Setup
 
 I began by performing the initial camera setup using the official Reolink mobile application. After connecting to the camera via Bluetooth, I set an administrator password and joined the camera to my home wireless network.
@@ -66,7 +64,7 @@ I deployed Frigate inside a Docker container using the provided [*docker-compose
 
 After starting the container, which runs the [**Web-Interface**](docs/images/frigate-web-ui.png) on port 5000, I configured Frigate using [*config/config.yaml*](configs/frigate/config.yaml), referencing the official [**full configuration reference**](https://docs.frigate.video/configuration/reference). In addition, I followed Frigate’s [**camera-spesific configuration guide**](https://docs.frigate.video/configuration/camera_specific/#reolink-cameras), which proved especially helpful for achieving stable RTSP streaming and optimal compatibility. 
 
-_(PHOTO OF THE WEB INTERFACE)_
+![Frigate Web UI](docs/images/frigate-web-ui.png)
 
 ## Frigate's AI Features
 
@@ -90,6 +88,8 @@ To address this, I decided to fully isolate the camera’s network traffic. I co
 - **wlan0**: remained connected to the home network
 
 The camera was moved onto this isolated WLAN, named CAMERA_LAN. This separation ensured predictable bandwidth for the camera stream and eliminated interference with unrelated network traffic on the home network.
+
+_(PHOTO OF THE Pi and Camera nex to each other)_
 
 ## Firewall on the Raspberry Pi
 
@@ -124,8 +124,17 @@ hasan@pi3:~/frigate $ tailscale status
 
 ## Security Hardening & Verification
  
+In this section, I document how network isolation and secure access were enforced and verified, starting from the camera network (CAMERA_LAN) and extending outward to remote VPN access.
 
-en son güvenlik denemeleri yaptim, tcpdumtan trafigi analiz ettim
+1. CAMERA_LAN Isolation (192.168.30.0/24)
+
+### asd
+
+## 2. asdd
+
+
+
+
 
 
 air-gapped-home-camera/
