@@ -7,7 +7,7 @@ The goal was to build a camera setup that can be accessed locally and remotely w
 
 The project evolved iteratively as real-world constraints (hardware limitations, network topology, WAN restrictions) were discovered and addressed.
 
-_(PHOTO OF THE iLAB like SETUP)_
+![Project setup](docs/images/network-diagram.png)
 
 ## Table of Contents
 
@@ -114,12 +114,17 @@ Despite the correct local configuration, I was unable to establish a VPN connect
 
 ### Tailscale
 
-To overcome this limitation, I switched to [**Tailscale**](https://tailscale.com/). Tailscale avoids this issue by establishing outbound, encrypted peer-to-peer connections, allowing the upstream NAT to maintain state for return traffic; periodic keepalives ensure this state remains active. Because all connections are initiated from inside the network, no inbound port forwarding is required, making Tailscale well-suited for environments without direct WAN access. 
+To overcome this limitation, I switched to [**Tailscale**](https://tailscale.com/). Instead of relying on inbound connections, Tailscale has each device establish outbound, encrypted WireGuard sessions to its coordination infrastructure. These outbound packets create stateful NAT mappings on the WAN side, allowing return traffic to be routed correctly. Tailscale then attempts to establish a direct peer-to-peer connection using UDP hole punching; if this is not possible, traffic is securely relayed. Because all connectivity is driven by outbound connections and existing NAT state, no inbound port forwarding or public WAN address is required.
+
+```bash
+hasan@pi3:~/frigate $ tailscale status
+100.x.x.x  pi-frigate  hasanberkyur@  linux  -
+100.y.y.y  iphone      hasanberkyur@  iOS    offline, last seen 20h ago
+```
 
 ## Security Hardening & Verification
  
-WAN ddad oldugum icin ulasamadigimi fark ettim 
-Tailscale kullanmaya karar verdim 
+
 en son güvenlik denemeleri yaptim, tcpdumtan trafigi analiz ettim
 
 
