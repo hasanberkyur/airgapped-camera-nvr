@@ -20,7 +20,7 @@ The project evolved iteratively as real-world constraints (hardware limitations,
 7. [Problems with the Home Network](#problems-with-the-home-network)
 8. [Firewall on the Raspberry Pi](#firewall-on-the-raspberry-pi)
 9. [Secure Remote Access through VPN](#secure-remote-access-through-vpn)
-10. [Security Hardening & Verification](#security-hardening--verification)
+10. [Security Hardening](#security-hardening--verification)
 
 ## Motivation
 
@@ -99,7 +99,7 @@ Once the camera was no longer sending traffic through the home router, I disable
 # Drop all forwarded packets from CAMERA_LAN to the home network
 sudo iptables -I FORWARD 1 -i wlan1 -o wlan0 -j DROP
 ```
-As later demonstrated in the [**Security Hardening & Verification**](#security-hardening--verification) section, the camera periodically attempts to send outbound traffic for various purposes. **(These packets are consistently dropped by the firewall before they can be forwarded beyond the Raspberry Pi, effectively enforcing the air-gapped design.)**
+As later demonstrated in the [**Security Hardening**](#security-hardening--verification) section, the camera periodically attempts to send outbound traffic for various purposes. **(These packets are consistently dropped by the firewall before they can be forwarded beyond the Raspberry Pi, effectively enforcing the air-gapped design.)**
 
 ## Secure Remote Access through VPN
 
@@ -122,7 +122,7 @@ hasan@pi3:~/frigate $ tailscale status
 100.y.y.y  iphone      hasanberkyur@  iOS    offline, last seen 20h ago
 ```
 
-## Security Hardening & Verification
+## Security Hardening
  
 This project is designed around the principle that the IP camera must never have a network path to the internet, even in the event of misconfiguration or compromised firmware.
 

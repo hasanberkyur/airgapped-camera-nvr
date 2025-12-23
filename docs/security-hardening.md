@@ -1,4 +1,4 @@
-# Security Hardening & Verification
+# Security Hardening
  
 This document describes the security design decisions used to isolate an IP camera from the home network and the internet, while still allowing controlled local access and secure remote monitoring.
 
