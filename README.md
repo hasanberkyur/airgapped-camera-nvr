@@ -18,9 +18,9 @@ The project evolved iteratively as real-world constraints (hardware limitations,
 5. [NVR Deployment & Video Processing using **Frigate**](#nvr-deployment--video-processing-using-frigate)
 6. [Frigate's AI Features](#frigates-ai-features)
 7. [Problems with the Home Network](#problems-with-the-home-network)
-8. [-]()
-9. [-]()
-10. [-]()
+8. [Firewall on the Raspberry Pi](#firewall-on-the-raspberry-pi)
+9. [Secure Remote Access through VPN](#secure-remote-access-through-vpn)
+10. [Security Hardening & Verification](#security-hardening--verification)
 
 ## Motivation
 
@@ -99,7 +99,7 @@ Once the camera was no longer sending traffic through the home router, I disable
 # Drop all forwarded packets from CAMERA_LAN to the home network
 sudo iptables -I FORWARD 1 -i wlan1 -o wlan0 -j DROP
 ```
-As later demonstrated in the [**Security Hardening & Verification**](#security-hardening--verification) section, the camera periodically attempts to send outbound traffic for various purposes. These packets are consistently dropped by the firewall before they can be forwarded beyond the Raspberry Pi, effectively enforcing the air-gapped design.
+As later demonstrated in the [**Security Hardening & Verification**](#security-hardening--verification) section, the camera periodically attempts to send outbound traffic for various purposes. **(These packets are consistently dropped by the firewall before they can be forwarded beyond the Raspberry Pi, effectively enforcing the air-gapped design.)**
 
 ## Secure Remote Access through VPN
 
@@ -124,16 +124,12 @@ hasan@pi3:~/frigate $ tailscale status
 
 ## Security Hardening & Verification
  
-In this section, I document how network isolation and secure access were enforced and verified, starting from the camera network (CAMERA_LAN) and extending outward to remote VPN access.
+This project is designed around the principle that the IP camera must never have a network path to the internet, even in the event of misconfiguration or compromised firmware.
 
-### 1. CAMERA_LAN Isolation (192.168.30.0/24)
+Network isolation and access controls are enforced at the Raspberry Pi, which acts as the sole routing and inspection point between the camera network and the home network. Remote access is provided exclusively via outbound, encrypted VPN connections.
 
-#### asd
-
-### 2. asdd
-
-
-
+A detailed analysis of the threat model, firewall rules, and packet-level verification steps is documented in  
+[*docs/security-hardening.md*](docs/security-hardening.md).
 
 
 
@@ -163,14 +159,3 @@ air-gapped-home-camera/
 ├─ .gitignore
 ├─ LICENSE
 └─ SECURITY.md
-
-
-
-
-```bash
-# Update system
-sudo apt update && sudo apt upgrade -y
-
-# Enable PCIe Gen 3 for Hailo (if using AI HAT)
-sudo raspi-config nonint do_pcie_speed 3
-```
