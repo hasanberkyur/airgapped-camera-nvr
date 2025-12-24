@@ -20,7 +20,7 @@ The project evolved iteratively as real-world constraints (hardware limitations,
 7. [Problems with the Home Network](#problems-with-the-home-network)
 8. [Firewall on the Raspberry Pi](#firewall-on-the-raspberry-pi)
 9. [Secure Remote Access through VPN](#secure-remote-access-through-vpn)
-10. [Security Hardening](#security-hardening--verification)
+10. [Security Hardening](#security-hardening)
 
 ## Motivation
 
@@ -89,7 +89,7 @@ To address this, I decided to fully isolate the camera’s network traffic. I co
 
 The camera was moved onto this isolated WLAN, named CAMERA_LAN. This separation ensured predictable bandwidth for the camera stream and eliminated interference with unrelated network traffic on the home network.
 
-_(PHOTO OF THE Pi and Camera nex to each other)_
+![Photo of Pi and Camera](docs/images/photo-pi-camera.png)
 
 ## Firewall on the Raspberry Pi
 
