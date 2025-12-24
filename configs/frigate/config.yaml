@@ -1,0 +1,49 @@
+version: 0.16-0
+
+mqtt:
+  enabled: false
+
+ffmpeg:
+  input_args: preset-rtsp-generic
+
+go2rtc:
+  streams:
+    reolink1:
+      - rtsp://admin:SECRET_CAMERA_PASSWORD@192.168.30.x:554/h264Preview_01_main#video=copy#audio=copy
+    reolink1_sub:
+      - rtsp://admin:SECRET_CAMERA_PASSWORD@192.168.30.x:554/h264Preview_01_sub#audio=copy
+
+cameras:
+  reolink1:
+    enabled: true
+
+    live:
+      streams:
+        main_stream: reolink1
+        sub_stream: reolink1_sub
+
+    ffmpeg:
+      inputs:
+        - path: rtsp://127.0.0.1:8554/reolink1
+          input_args: preset-rtsp-restream
+          roles:
+            - record
+            - audio
+
+        - path: rtsp://127.0.0.1:8554/reolink1_sub
+          input_args: preset-rtsp-restream
+          roles:
+            - detect
+    audio:
+      enabled: false #enable
+      listen:
+        - crying
+
+    detect:
+      enabled: false #enable
+
+    onvif:
+      host: 192.168.30.x
+      port: 8000
+      user: admin
+      password: SECRET_CAMERA_PASSWORD

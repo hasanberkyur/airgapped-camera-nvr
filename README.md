@@ -7,7 +7,7 @@ The goal was to build a camera setup that can be accessed locally and remotely w
 
 The project evolved iteratively as real-world constraints (hardware limitations, network topology, WAN restrictions) were discovered and addressed.
 
-![Project setup](docs/images/network-diagram.png)
+![Project setup](docs/diagrams/network-diagram.png)
 
 ## Table of Contents
 
@@ -130,32 +130,3 @@ Network isolation and access controls are enforced at the Raspberry Pi, which ac
 
 A detailed analysis of the threat model, firewall rules, and packet-level verification steps is documented in  
 [*docs/security-hardening.md*](docs/security-hardening.md).
-
-
-
-air-gapped-home-camera/
-├─ README.md
-├─ docs/
-│  ├─ architecture.md
-│  ├─ threat-model.md
-│  ├─ verification.md
-│  ├─ lessons-learned.md
-│  ├─ images/
-│  └─ diagrams/
-├─ configs/
-│  ├─ frigate/
-│  ├─ go2rtc/
-│  ├─ hostapd/
-│  ├─ dnsmasq/
-│  └─ firewall/
-├─ scripts/
-│  ├─ capture.sh
-│  ├─ verify-no-wan.sh
-│  └─ sanitize.sh
-├─ evidence/
-│  ├─ pcaps/              (sanitized)
-│  ├─ logs/               (sanitized)
-│  └─ screenshots/
-├─ .gitignore
-├─ LICENSE
-└─ SECURITY.md

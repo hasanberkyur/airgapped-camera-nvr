@@ -23,7 +23,7 @@ The focus of this document is **hardening by architecture** rather than operatio
 - **NVR:** Frigate running in Docker on Raspberry Pi
 - **Remote access:** Tailscale (WireGuard-based) using SSO login
 
-![Project setup](images/network-diagram.png)
+![Project setup](diagrams/network-diagram.png)
 
 ---
 
