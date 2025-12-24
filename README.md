@@ -93,13 +93,16 @@ The camera was moved onto this isolated WLAN, named CAMERA_LAN. This separation 
 
 ## Firewall on the Raspberry Pi
 
-Once the camera was no longer sending traffic through the home router, I disabled the previously configured internet access control rules on the router. To continue preventing any internet access from the camera, I enforced traffic restrictions directly on the Raspberry Pi using firewall rules implemented with [**iptables**](configs/iptables/).
+Once the camera was no longer sending traffic through the home router, I disabled the previously configured internet access control rules on the router. To continue preventing any internet access from the camera, I enforced traffic restrictions directly on the Raspberry Pi using firewall rules implemented with **iptables**.
 
 ```bash
-# Drop all forwarded packets from CAMERA_LAN to the home network
-sudo iptables -I FORWARD 1 -i wlan1 -o wlan0 -j DROP
+# Drop all forwarded packets from CAMERA_LAN to HOME_LAN
+sudo iptables -A FORWARD -i wlan1 -o wlan0 -j DROP
+
+# Drop all forwarded packets from HOME_LAN to CAMERA_LAN
+sudo iptables -A FORWARD -i wlan0 -o wlan1 -j DROP
 ```
-As later demonstrated in the [**Security Hardening**](#security-hardening--verification) section, the camera periodically attempts to send outbound traffic for various purposes. **(These packets are consistently dropped by the firewall before they can be forwarded beyond the Raspberry Pi, effectively enforcing the air-gapped design.)**
+As later demonstrated in the [**Security Hardening**](#security-hardening) section, the camera periodically attempts to send outbound traffic for various purposes. These packets are consistently dropped by the firewall before they can be forwarded beyond the Raspberry Pi, effectively enforcing the air-gapped design.
 
 ## Secure Remote Access through VPN
 
