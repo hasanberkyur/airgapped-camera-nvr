@@ -96,7 +96,7 @@ If the Raspberry Pi forwards packets indiscriminately:
 ### Hardening Measures
 The Raspberry Pi enforces a strict forwarding boundary between CAMERA_LAN and HOME_LAN.
 
-An explicit iptables rule drops all forwarded packets originating from `wlan1` (CAMERA_LAN) toward `wlan0`:
+An explicit iptables rule drops all forwarded packets originating from `wlan1` (CAMERA_LAN) toward `wlan0` (HOME_LAN) or the other way:
 
 ```bash
 # Drop all forwarded packets from CAMERA_LAN to HOME_LAN
